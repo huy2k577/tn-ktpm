@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STU - Hệ Thống Luyện Thi Công Nghệ Phần Mềm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --warning: #eab308;
+            --warning-light: #fef08a;
+            --warning-text: #854d0e;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            
+            font-size: 15px; 
+        }
+
+        @media (min-width: 901px) {
+            :root {
+                font-size: 22px;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .container { 
+                grid-template-columns: 1fr; 
+                margin: 0.8rem auto;
+                gap: 1.5rem;
+            }
+            .sidebar { 
+                position: static !important;
+                margin-top: 0.5rem;
+            }
+            header h1 {
+                font-size: 1.4rem;
+            }
+        }
+
+        .main-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            box-shadow: var(--shadow);
+            min-height: 350px;
+        }
+
+        .sidebar {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+
+        .progress-container {
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-bg {
+            background: var(--border);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar-fill {
+            background: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .grid-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .grid-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .grid-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .grid-item.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .grid-item.wrong {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .grid-item.skipped {
+            background: var(--warning);
+            color: var(--warning-text);
+            border-color: var(--warning);
+        }
+
+        .q-header {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            white-space: pre-line;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .option-item:not(.disabled):hover {
+            background-color: var(--bg-body);
+            border-color: var(--text-muted);
+        }
+
+        .option-item.correct-instant {
+            border-color: var(--success) !important;
+            background-color: var(--success-light) !important;
+            color: #065f46 !important;
+        }
+
+        .option-item.wrong-instant {
+            border-color: var(--danger) !important;
+            background-color: var(--danger-light) !important;
+            color: #991b1b !important;
+        }
+
+        .option-item.disabled {
+            cursor: not-allowed;
+        }
+
+        .option-prefix {
+            font-weight: 700;
+            margin-right: 12px;
+            background: var(--bg-body);
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.85rem;
+        }
+
+        .option-item.correct-instant .option-prefix {
+            background: var(--success);
+            color: white;
+        }
+
+        .option-item.wrong-instant .option-prefix {
+            background: var(--danger);
+            color: white;
+        }
+
+        .actions {
+            margin-top: 1.8rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 0.7rem 1.4rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-secondary {
+            background: var(--bg-body);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 12px;
+        }
+
+        .modal-overlay.show {
+            opacity: 1; pointer-events: auto;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .score-summary {
+            display: flex;
+            justify-content: space-around;
+            background: var(--bg-body);
+            padding: 1.2rem 0.8rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .score-num {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .modal-footer {
+            padding: 1.2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+        }
+
+        .warning-banner {
+            background-color: var(--warning-light);
+            border-top: 6px solid var(--warning);
+            max-width: 450px !important;
+        }
+        .btn-warning-action {
+            background: var(--warning);
+            color: var(--warning-text);
+        }
+        .btn-warning-action:hover {
+            background: #d9a006;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>HỆ THỐNG LUYỆN THI CÔNG NGHỆ PHẦN MỀM</h1>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div id="quiz-area">
+                </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
+                    <span>Tiến độ luyện đề:</span>
+                    <span id="progress-text">0/45</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <div class="grid-nav" id="question-grid">
+                </div>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="resetQuiz()">Làm lại từ đầu</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="warning-modal">
+        <div class="modal-card warning-banner">
+            <div class="modal-body" style="text-align: center; padding: 1.5rem 1rem;">
+                <div style="font-size: 2.5rem; margin-bottom: 8px;">⚠️</div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--warning-text); font-weight: 700;">Chưa chọn đáp án!</h3>
+                <p style="color: #6b7280; margin-bottom: 20px; font-size: 0.9rem;">Bạn chưa chọn câu trả lời này. Bạn muốn ở lại chọn đáp án hay bỏ qua để đi tiếp?</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="closeWarningModal()">Ở lại</button>
+                    <button class="btn btn-warning-action" onclick="confirmSkipQuestion()">Chuyển tiếp</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="result-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>BẢNG ĐÁNH GIÁ KẾT QUẢ</h2>
+            </div>
+            <div class="modal-body">
+                <div class="score-summary">
+                    <div>
+                        <div class="score-num" style="color: var(--success);" id="modal-correct-count">0</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Đúng</div>
+                    </div>
+                    <div>
+                        <div class="score-num" style="color: var(--danger);" id="modal-wrong-count">0</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Sai</div>
+                    </div>
+                    <div>
+                        <div class="score-num" style="color: var(--warning-text);" id="modal-skip-count">0</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Bỏ qua</div>
+                    </div>
+                    <div>
+                        <div class="score-num" style="color: var(--primary);" id="modal-ratio">0%</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Tỷ lệ đúng</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="resetQuiz(); closeResultModal();">Xáo trộn đề & Làm lại</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawQuizData = [
+            { q: "Câu 1: \"Ngụy biện không có lỗi\" (absence-of-errors fallacy) nghĩa là gì?", a: ["Nếu không tìm thấy lỗi thì chắc chắn không có lỗi", "Nếu phần mềm ít lỗi thì chắc chắn đáp ứng nhu cầu người dùng", "Dù ít/không có lỗi, phần mềm vẫn có thể không đáp ứng nhu cầu/giá trị sử dụng", "Lỗi chỉ xuất hiện khi thay đổi môi trường triển khai"], c: 2 },
+            { q: "Câu 2: Phát biểu nào mô tả đúng \"exhaustive testing\" (kiểm thử toàn diện)?", a: ["Luôn bắt buộc với mọi dự án", "Thường không khả thi vì số lượng trường hợp đầu vào/quyết định quá lớn", "Chỉ áp dụng cho UI testing", "Chỉ cần đạt 100% statement coverage là đủ gọi là exhaustive"], c: 1 },
+            { q: "Câu 3: Trong Junit, khi test có tham số thì annotation nào thường dùng để truyền dữ liệu nhiều dòng (CSV) trực tiếp?", a: ["@CsvSource", "@ValueSource", "@MethodSource", "@FilesSource"], c: 0 },
+            { q: "Câu 4: Để kiểm tra list chứa đúng các phần tử theo thứ tự 1,2,3, matcher phù hợp nhất là:", a: ["hasItems(1,2,3)", "contains(1,2,3)", "containsInAnyOrder(1,2,3)", "everyItem(isOneOf(1,2,3))"], c: 1 },
+            { q: "Câu 5: Trong JUnit 5, Annotation nào sau đây làm cho 1 phương thức được chạy trước mỗi phương thức test trong test class?", a: ["@BeforeEach", "@BeforeAll", "@Before", "@BeforeClass"], c: 0 },
+            { q: "Câu 6: Trong JUnit 5, Matcher nào kiểm tra chuỗi bằng nhau, bỏ qua hoa/thường?", a: ["equalToIgnoreCase()", "equalsIgnoreCase()", "sameTextIgnoreCase()", "textEqualsIgnoreCase()"], c: 0 },
+            { q: "Câu 7: Trong chiến lược kiểm thử tích hợp từ trên xuống (Top-down Integration), thành phần giả lập được sử dụng để thay thế cho các module cấp thấp chưa được phát triển gọi là gì?", a: ["Driver", "Stub", "Dummy", "Proxy"], c: 1 },
+            { q: "Câu 8: Cho đoạn mã sau, cần tối thiểu bao nhiêu test case để phủ nhánh 100%?\\nint n;\\ncout << \"Nhap n: \";\\ncin >> n;\\nswitch (n % 3)\\n{\\ncase 0:\\n\\tcout << \"Chia het cho 3\";\\n\\tbreak;\\ncase 1:\\ncase 2:\\n\\tcout << \"Khong chia het cho 3\";\\n}", a: ["1", "3", "2", "4"], c: 1 },
+            { q: "Câu 9: Hoạt động nào dùng để kiểm tra xem đã phát triển sản phẩm theo yêu cầu của khách hàng chưa?", a: ["Validation", "Verification", "Quality Assurance", "Quality Control"], c: 0 },
+            { q: "Câu 10: Annotation JUnit nào được sử dụng để đánh dấu một phương thức test có tham số?", a: ["@ParametrizedTest", "@Parameterized", "@ParamTest", "@ParameterizedTest"], c: 3 },
+            { q: "Câu 11: Cho đoạn mã hàm tìm USCLN, cần bao nhiêu test case để phủ các dòng lệnh và phủ nhánh?\\nint USCLN (int a, int b){\\n\\twhile (a != b)\\n\\t\\tif (a > b)\\n\\t\\t\\ta= a – b;\\n\\t\\telse\\n\\t\\t\\tb = b – a;\\n\\treturn a;\\n}", a: ["2 test case để phủ các dòng lệnh, 2 test case để phủ nhánh", "1 test case để phủ các dòng lệnh, 2 test case để phủ nhánh", "2 test case để phủ các dòng lệnh, 3 test case để phủ nhánh", "1 test case để phủ các dòng lệnh, 1 test case để phủ nhánh"], c: 3 },
+            { q: "Câu 12: Một hệ thống tính phí gửi xe: Miễn phí cho 15 phút đầu, 10.000đ cho mỗi giờ tiếp theo. Tối đa 200.000đ/ngày. Kỹ thuật thiết kế test case nào phù hợp nhất để kiểm tra logic nghiệp vụ này?", a: ["Bảng quyết định (Decision Table Testing)", "Phân tích luồng điều khiển (Control Flow Analysis)", "Kiểm thử trường hợp sử dụng (Use Case Testing)", "Kiểm thử chuyển đổi trạng thái (State Transition Testing)"], c: 0 },
+            { q: "Câu 13: Cần tối thiểu bao nhiêu test case để phủ được cấp 3 đoạn mã sau:\\nint f(int a, int b){\\nif (a>0 && b>0)\\nreturn 0;\\nif (a*b || a==b)\\nreturn 1;\\nreturn -1;\\n}", a: ["2", "5", "4", "3"], c: 3 },
+            { q: "Câu 14: Annotation JUnit nào được sử dụng để nhóm nhiều test case lại với nhau?", a: ["@TestGroup", "@Suite", "@Group", "@TestSuite"], c: 1 },
+            { q: "Câu 15: Độ phức tạp chu trình của đoạn mã giả có 1 vòng lặp do-while (i++<10) là bao nhiêu?\\nint i=1, s=2;\\ndo {\\n    s+=i;\\n    cout << \" = \" << i << \" => s = \" << s << endl;\\n} while (i++<10);", a: ["3", "2", "4", "5"], c: 1 },
+            { q: "Câu 16: Kiểm thử giá trị biên mạnh của hàm tính số lượng nghiệm không trùng nhau của phương trình bậc 2 int f(int a, int b, int c) với 3 biến a, b, c có khoảng giá trị từ 1 đến 100 thì cần bao nhiêu test case?", a: ["13", "19", "9", "125"], c: 1 },
+            { q: "Câu 17: Nguyên tắc kiểm thử \"Không thể chứng minh sự tồn tại của lỗi\" có ý nghĩa gì?", a: ["Kiểm thử chỉ có thể phát hiện lỗi, không thể chứng minh phần mềm không có lỗi", "Kiểm thử có thể loại bỏ mọi lỗi trong phần mềm", "Kiểm thử giúp chứng minh phần mềm hoàn hảo", "Kiểm thử chỉ cần kiểm tra giao diện người dùng"], c: 0 },
+            { q: "Câu 18: Test suite được tạo ra trong giai đoạn nào?", a: ["Thiết lập môi trường", "Lập kế hoạch", "Phân tích yêu cầu", "Phát triển test case"], c: 3 },
+            { q: "Câu 19: Cái nào sau đây không phải là một trong những nguyên tắc của kiểm thử?", a: ["Kiểm thử càng sớm càng tốt", "Lỗi thường phân bố tập trung", "Nghịch lý thuốc trừ sâu", "Kiểm thử toàn bộ"], c: 3 },
+            { q: "Câu 20: Cấp độ kiểm thử nào tập trung vào sự tương tác giữa các thành phần hoặc hệ thống?", a: ["Kiểm thử hệ thống (System Testing)", "Kiểm thử chấp nhận (Acceptance Testing)", "Kiểm thử đơn vị (Unit Testing)", "Kiểm thử tích hợp (Integration Testing)"], c: 3 },
+            { q: "Câu 21: Kiểm thử hệ thống nên:", a: ["Kiểm cả yêu cầu phi chức năng và yêu cầu chức năng", "Kiểm yêu cầu phi chức năng hoặc yêu cầu chức năng", "Chỉ kiểm các yêu cầu phi chức năng không cần kiểm các yêu cầu chức năng", "Chỉ kiểm các yêu cầu chức năng không cần kiểm các yêu cầu phi chức năng"], c: 0 },
+            { q: "Câu 22: Bạn đang test một hệ thống bán hàng online. Chi phí vận chuyển được xác định với mức giá là: dưới 5kg là 35$, từ 5kg đến 10kg là 55$, trên 10kg là 105$. Trọng lượng mà nhỏ hơn hoặc bằng 0 được xem là không hợp lệ. Xác định có bao nhiêu lớp tương đương cần thiết để test.", a: ["2", "3", "4", "5"], c: 2 },
+            { q: "Câu 23: Kỹ thuật đoán lỗi được sử dụng tốt nhất:", a: ["Khi tiếp cận đầu tiên để tạo ra các test case", "Sau khi các kỹ thuật chính thức được áp dụng", "Sau khi hệ thống hoạt động", "Bởi những tester thiếu kinh nghiệm"], c: 1 },
+            { q: "Câu 24: Cho đoạn mã kiểm tra số nguyên tố, số test case tối thiểu cần có để phủ tất cả các nhánh?\\nint test(int k) {\\n    if (k <= 1) return -1;\\n    for (int i = 2; i < k; i++) {\\n        if (k % i == 0) return -1;\\n    }\\n    return 1;\\n}", a: ["Có 4 test case", "Có 2 test case", "Có 3 test case", "Tất cả đều sai"], c: 2 },
+            { q: "Câu 25: Đoạn mã giả: IF (Tuổi < 18 OR Là_Học_Sinh == TRUE) THEN Giảm_giá = 10%. Để đạt 100% Độ bao phủ quyết định (Decision Coverage) với số lượng test case tối thiểu, bạn cần các trường hợp nào:", a: ["TC1: Tuổi = 20, Là_Học_Sinh = FALSE", "TC1: Tuổi = 20, Là_Học_Sinh = TRUE; TC2: Tuổi = 20, Là_Học_Sinh = FALSE", "TC1: Tuổi = 15, Là_Học_Sinh = TRUE; TC2: Tuổi = 15, Là_Học_Sinh = FALSE", "TC1: Tuổi = 10, Là_Học_Sinh = FALSE"], c: 1 },
+            { q: "Câu 26: Phát biểu nào sau đây đúng về độ bao phủ?", a: ["Cho biết test kỹ hay không", "Không liên quan gì đến kiểm thử", "Chỉ dừng test khi đạt được độ bao phủ là 100%", "Số test case càng lớn thì độ bao phủ càng cao"], c: 0 },
+            { q: "Câu 27: Nguyên lý Nghịch lý thuốc trừ sâu (Pesticide Paradox) gợi ý hành động nào sau đây?", a: ["Cần thường xuyên xem xét và cập nhật bộ test case, viết thêm test case mới", "Dùng kiểm thử khi đã tìm thấy đủ số lượng lỗi dự kiến", "Chỉ sử dụng những test case đã tìm thấy lỗi trong quá khứ", "Nên tập trung vào kiểm thử tự động hơn là thủ công"], c: 0 },
+            { q: "Câu 28: Nguồn nào sau đây là nguồn tốt nhất về \"Kết quả mong đợi\" cho các tập lệnh \"Kiểm thử chấp nhận\" của người dùng?", a: ["Đặc tả chương trình", "Yêu cầu của người dùng", "Đặc tả hệ thống", "Kết quả thực tế"], c: 1 },
+            { q: "Câu 29: Cho đoạn mã giả sau, số test case tối thiểu để phủ được tất cả các nhánh là?\\nif (x > y)  x = x + 1;\\nwhile (x > y)\\ny = x * y;\\nx = x + 1;", a: ["Có 2 ca kiểm thử", "Có 1 ca kiểm thử", "Có 3 ca kiểm thử", "Có 4 ca kiểm thử"], c: 0 },
+            { q: "Câu 30: Kết quả của đoạn mã sau là gì:\\npublic class TestClass {\\n    @Test\\n    public void testingMethod() {\\n        String message = \"Test\";\\n        assertEquals(3, message.length());\\n    }\\n}", a: ["Test chạy với kết quả là thành công", "Lỗi Runtime", "Lỗi biên dịch", "Test chạy với kết quả là thất bại"], c: 3 },
+            { q: "Câu 31: Ai thực hiện Unit Test?", a: ["QC", "Developer", "User", "Designer"], c: 1 },
+            { q: "Câu 32: Ưu điểm chính của phương pháp kiểm thử tích hợp dưới lên (Bottom-up) là gì?", a: ["Không cần phải tạo stub", "Thiết kế test case dễ và không cần driver", "Kiểm thử ngay chức năng điều khiển hệ thống", "Phát hiện sớm các lỗi hệ thống"], c: 0 },
+            { q: "Câu 33: Các file JUnit test được lưu trong các file có phần mở rộng là gì?", a: [".test", ".unit", ".junit", ".java"], c: 3 },
+            { q: "Câu 34: Cho đoạn mã sau, cần tối thiểu bao nhiêu test case để phủ lệnh 100%?\\nint n;  cout << \"Nhap n: \";  cin >> n;\\nswitch (n % 3) {\\n    case 0:\\n    case 1:\\n        cout << \"Chia het cho 3\";  break;\\n    case 2:\\n        cout << \"Không chia hết cho 3\";\\n}", a: ["1", "3", "2", "4"], c: 2 },
+            { q: "Câu 35: Kỹ thuật nào sau đây là một hình thức kiểm thử tĩnh?", a: ["Đoán lỗi", "Kiểm thử hồi quy tự động", "Cung cấp đầu vào, chạy chương trình và kiểm tra kết quả đầu ra", "Review code"], c: 3 },
+            { q: "Câu 36: Phát biểu nào sau đây đúng về độ bao phủ?", a: ["Số test case càng lớn thì độ bao phủ càng cao", "Không liên quan gì đến kiểm thử", "Chỉ dừng test khi đạt được độ bao phủ là 100%", "Cho biết test kỹ hay không"], c: 3 },
+            { q: "Câu 37: Kịch bản test (Test script) được tạo ra trong giai đoạn nào?", a: ["Phát triển test case", "Phân tích yêu cầu", "Thiết lập môi trường test", "Lập kế hoạch test"], c: 0 },
+            { q: "Câu 38: Kiểm thử được thực hiện đầy đủ khi:", a: ["Khi phát hiện được tất cả các lỗi", "Người dùng hài lòng", "Đạt độ tin cậy cần thiết được thiết lập trong test plan", "Không tìm thấy lỗi nào nữa"], c: 2 },
+            { q: "Câu 39: Phát biểu nào sau đây đúng về quá trình xây dựng phần mềm theo hướng tiếp cận TDD?", a: ["Phải thực hiện việc test 2 lần để có ít bug hơn", "Trải qua 2 giai đoạn: test trước, code", "Trải qua 3 giai đoạn: red, green, refactor", "Trải qua 3 giai đoạn: test, code, retest"], c: 2 },
+            { q: "Câu 40: Trường hợp nào sẽ là trường hợp kiểm thử chức năng cho hệ thống mua hàng online?", a: ["Kiểm tra cách hệ thống hoạt động khi số lượng lớn người dùng đang truy cập trang web", "Đảm bảo người già cũng có thể sử dụng dễ dàng", "Kiểm tra xem người dùng có thể huỷ đơn hàng đã được đặt hay không", "Tất cả đều đúng"], c: 2 },
+            { q: "Câu 41: Cái nào không phải là mục tiêu kiểm thử?", a: ["Tìm nguyên nhân gây lỗi", "Ngăn ngừa khiếm khuyết", "Để đạt được mức độ tin tưởng về chất lượng", "Tìm khuyết điểm của phần mềm"], c: 0 },
+            { q: "Câu 42: Việc xác định tiêu chí dừng test được thực hiện khi nào?", a: ["Trong khi lập kế hoạch kiểm thử", "Khi đóng quá trình kiểm thử", "Khi đánh giá các tiêu chí dừng và lập báo cáo", "Khi kiểm soát quá trình kiểm thử"], c: 0 },
+            { q: "Câu 43: Cái nào sau đây không phải là một phần của kiểm thử hệ thống:", a: ["Kiểm thử khả năng phục hồi khi gặp sự cố", "Kiểm tra viết code có đúng chuẩn không", "Kiểm tra xem có sử dụng dễ không", "Kiểm thử hiệu suất"], c: 1 },
+            { q: "Câu 44: Các bước cơ bản của quá trình kiểm thử dòng điều khiển là:", a: ["Tính độ phức tạp chu trình để xác định loại đồ thị dòng điều khiển, xác định đường thi hành, sinh test case dựa vào đường thi hành...", "Sinh đồ thị dòng điều khiển CFG với tiêu chí độ đo cần kiểm thử, sinh các đường thi hành, sinh các test case, thực hiện các test case", "Sinh đồ thị các test case từ code với độ đo cần kiểm thử, thực hiện các test case.", "Sinh đồ thị dòng điều khiển CFG với tiêu chí độ đo cần kiểm thử, sinh các test case, thực hiện các test case"], c: 1 },
+            { q: "Câu 45: Kiểm thử hồi quy (Regression Testing) nên được thực hiện khi nào?", a: ["Sau khi mã nguồn đã được sửa đổi hoặc thay đổi môi trường.", "Khi khách hàng yêu cầu kiểm thử hiệu năng.", "Chỉ thực hiện một lần duy nhất trước khi phát hành.", "Chỉ khi bắt đầu một dự án mới."], c: 0 }
+        ];
+
+        let processedQuiz = [];
+        let currentIndex = 0;
+        let pendingTargetIndex = null;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function prepareQuizData() {
+            processedQuiz = rawQuizData.map((item, originIdx) => {
+                let formattedOptions = item.a.map((optionText, optIdx) => {
+                    return { text: optionText, isCorrect: optIdx === item.c };
+                });
+                shuffleArray(formattedOptions);
+
+                return {
+                    originalId: originIdx + 1,
+                    questionText: item.q,
+                    options: formattedOptions,
+                    userSelectedIndex: null,
+                    isUserCorrect: null,
+                    isSkipped: false
+                };
+            });
+            shuffleArray(processedQuiz);
+        }
+
+        function initQuiz() {
+            prepareQuizData();
+            currentIndex = 0;
+            renderGrid();
+            renderQuestion();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            processedQuiz.forEach((_, idx) => {
+                const item = document.createElement('div');
+                item.classList.add('grid-item');
+                item.id = `grid-item-${idx}`;
+                item.innerText = idx + 1;
+                item.onclick = () => {
+                    tryNavigation(idx);
+                };
+                grid.appendChild(item);
+            });
+            updateSidebarStatus();
+        }
+
+        function tryNavigation(targetIdx) {
+            if (targetIdx < 0 || targetIdx >= processedQuiz.length) return;
+
+            if (targetIdx > currentIndex && processedQuiz[currentIndex].userSelectedIndex === null) {
+                pendingTargetIndex = targetIdx;
+                openWarningModal();
+            } else {
+                currentIndex = targetIdx;
+                renderQuestion();
+            }
+        }
+
+        function openWarningModal() {
+            document.getElementById('warning-modal').classList.add('show');
+        }
+
+        function closeWarningModal() {
+            document.getElementById('warning-modal').classList.remove('show');
+            pendingTargetIndex = null;
+        }
+
+        function confirmSkipQuestion() {
+            processedQuiz[currentIndex].isSkipped = true; 
+            currentIndex = pendingTargetIndex;
+            closeWarningModal();
+            renderQuestion();
+        }
+
+        function updateSidebarStatus() {
+            let answeredCount = 0;
+            let skippedCount = 0;
+
+            processedQuiz.forEach((q, idx) => {
+                const item = document.getElementById(`grid-item-${idx}`);
+                if(!item) return;
+
+                item.classList.remove('active', 'correct', 'wrong', 'skipped');
+
+                if (idx === currentIndex) item.classList.add('active');
+
+                if (q.userSelectedIndex !== null) {
+                    answeredCount++;
+                    if(q.isUserCorrect) item.classList.add('correct'); 
+                    else item.classList.add('wrong');
+                } else if (q.isSkipped) {
+                    skippedCount++;
+                    item.classList.add('skipped');
+                }
+            });
+
+            const totalProcessed = answeredCount + skippedCount;
+            document.getElementById('progress-text').innerText = `${totalProcessed}/${processedQuiz.length}`;
+            const percentage = (totalProcessed / processedQuiz.length) * 100;
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+
+            if (totalProcessed === processedQuiz.length) {
+                setTimeout(showResultSummary, 600);
+            }
+        }
+
+        function renderQuestion() {
+            const area = document.getElementById('quiz-area');
+            const currentQ = processedQuiz[currentIndex];
+            
+            let optionsHTML = '';
+            currentQ.options.forEach((opt, i) => {
+                let stateClass = '';
+                
+                if(currentQ.userSelectedIndex !== null) {
+                    stateClass = 'disabled ';
+                    if(opt.isCorrect) {
+                        stateClass += 'correct-instant';
+                    } else if(currentQ.userSelectedIndex === i) {
+                        stateClass += 'wrong-instant';
+                    }
+                }
+
+                optionsHTML += `
+                    <div class="option-item ${stateClass}" onclick="handleOptionClick(${i})">
+                        <div class="option-prefix">${String.fromCharCode(65 + i)}</div>
+                        <div style="flex: 1; white-space: pre-line;">${opt.text}</div>
+                    </div>
+                `;
+            });
+
+            area.innerHTML = `
+                <div class="q-header">${currentQ.questionText}</div>
+                <div class="options-list">${optionsHTML}</div>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="tryNavigation(currentIndex - 1)" ${currentIndex === 0 ? 'disabled' : ''}>Câu trước</button>
+                    <button class="btn btn-primary" onclick="tryNavigation(currentIndex + 1)" ${currentIndex === processedQuiz.length - 1 ? 'disabled' : ''}>Câu tiếp theo</button>
+                </div>
+            `;
+            
+            updateSidebarStatus();
+            
+            if (window.innerWidth <= 900) {
+                document.getElementById('quiz-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function handleOptionClick(optionIdx) {
+            const currentQ = processedQuiz[currentIndex];
+            if(currentQ.userSelectedIndex !== null) return;
+
+            currentQ.userSelectedIndex = optionIdx;
+            currentQ.isUserCorrect = currentQ.options[optionIdx].isCorrect;
+            currentQ.isSkipped = false;
+
+            renderQuestion();
+        }
+
+        function showResultSummary() {
+            let correct = 0;
+            let wrong = 0;
+            let skipped = 0;
+
+            processedQuiz.forEach((q) => {
+                if (q.userSelectedIndex !== null) {
+                    if (q.isUserCorrect) correct++;
+                    else wrong++;
+                } else {
+                    skipped++;
+                }
+            });
+
+            document.getElementById('modal-correct-count').innerText = correct;
+            document.getElementById('modal-wrong-count').innerText = wrong;
+            document.getElementById('modal-skip-count').innerText = skipped;
+            document.getElementById('modal-ratio').innerText = Math.round((correct / processedQuiz.length) * 100) + '%';
+
+            document.getElementById('result-modal').classList.add('show');
+        }
+
+        function closeResultModal() {
+            document.getElementById('result-modal').classList.remove('show');
+        }
+
+        function resetQuiz() {
+            if(confirm("Bạn có chắc chắn muốn làm lại? Đề thi và thứ tự các đáp án sẽ được xáo trộn ngẫu nhiên một lần nữa.")) {
+                initQuiz();
+            }
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
